@@ -13,7 +13,7 @@ const config = {
 		description: "Makes the background colors of the folders the same colors as folders, instead of standart one color for all folder backgrounds",
 		version: "1.0.0",
 		author: "Титан",
-		updateUrl: "https://github.com/TuTAH1/BetterDiscordPlugins/blob/main/FolderBackgroundColors/FolderBackgroundColors.js"
+		updateUrl: "https://raw.githubusercontent.com/TuTAH1/BetterDiscordPlugins/main/FolderBackgroundColors/FolderBackgroundColors.js"
 	}
 };
 
@@ -40,7 +40,7 @@ module.exports = class FolderBackgroundColors {
 
 		function changeColorOpacity(color, newOpacity) {
 			let colors = color.replaceAll(/[^\d| ]/g, '').split(" ",3);
-			return "rgb(" + colors + ", " + newOpacity + ')'
+			return "rgba(" + colors + ", " + newOpacity + ')'
 		}
 
 		function colorize(folder, background) {
@@ -48,9 +48,10 @@ module.exports = class FolderBackgroundColors {
 			i++;
 			folder.setAttribute("fbc_id",i);
 			let backgroundColor = getFolderBackground(folder)
-			cssString+=`[FBC_id="${i}"] {background-color: ${backgroundColor}}\n`;
+			cssString+=`[FBC_id="${i}"] {background-color: ${backgroundColor}!important}\n`;
+			cssString+=`[FBC_id="${i}"][class*="collapsed"] {background-color:transparent!important}\n`;
 			//folder.style.backgroundColor = backgroundColor //apply background to whole folder background
-			cssString+=`[FBC_id="${i}"] [class*=\"folder-\"] {background-color: ${backgroundColor}}\n`;
+			cssString+=`[FBC_id="${i}"] [class*="folder-"] {background-color: ${backgroundColor}!important}\n`;
 			//TODO: cssString+= css, который изменяет цвет иконки папки
 			//folderIcon.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = backgroundColor
 		}
