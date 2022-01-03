@@ -3,11 +3,8 @@
  * @description Makes the background colors of the folders the same colors as foldersm instead of standart one color for all folder backgrounds
  * @version 1.0.0
  * @author Титан
- * @authorId
- * @invite
- * @website https://github.com/jaimeadf/BetterDiscordPlugins/tree/release/src/...
- * @source https://github.com/jaimeadf/BetterDiscordPlugins/tree/release/src/...
- * @updateUrl https://raw.githubusercontent.com/jaimeadf/BetterDiscordPlugins/release/dist/WhoReacted/...
+ * @authorId https://discordapp.com/users/282775588257792005/
+ * @updateUrl https://github.com/TuTAH1/BetterDiscordPlugins/blob/main/FolderBackgroundColors/FolderBackgroundColors.js
  */
 
 const config = {
@@ -16,7 +13,7 @@ const config = {
 		description: "Makes the background colors of the folders the same colors as foldersm instead of standart one color for all folder backgrounds",
 		version: "1.0.0",
 		author: "Титан",
-		updateUrl: "url"
+		updateUrl: "https://github.com/TuTAH1/BetterDiscordPlugins/blob/main/FolderBackgroundColors/FolderBackgroundColors.js"
 	}
 };
 
@@ -71,6 +68,4 @@ module.exports = class FolderBackgroundColors {
 	observer(changes) {} // Optional function. Observer for the `document`. Better documentation than I can provide is found here: <https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver>
 }
 
-//TODO: Добавить событие при клике на закрытой папке .onclick
-//NOTE: Фон папок сохраняется
-//TODO: Добавить класс к папкам с измененным фоном и игнорить их при измении фона
+//NOTE: Фон папок сохраняется, возможно его можно изменить не открывая папку.
