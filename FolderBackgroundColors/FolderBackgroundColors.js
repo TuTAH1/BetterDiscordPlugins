@@ -28,10 +28,10 @@ module.exports = class FolderBackgroundColors {
 	} // Optional function. Called when the plugin is loaded in to memory
 
 	start() {
-		let selectorPath = "div[class*=\"expandedFolderIconWrapper\"] > svg > path";
-		let Folders = document.querySelectorAll("span[class*=\"expandedFolderBackground\"]");
+		const selectorPath = "div[class*=\"expandedFolderIconWrapper\"] > svg > path";
+		const Folders = document.querySelectorAll("span[class*=\"expandedFolderBackground\"]");
 //let ClosedFolders = все, где [class*="collapsed"]
-		let i = 0;
+		let cssString;
 
 		function getStyle(element) {
 			if(window.getComputedStyle) return getComputedStyle(element, null);
@@ -43,15 +43,25 @@ module.exports = class FolderBackgroundColors {
 			return "rgb(" + colors + ", " + newOpacity + ')'
 		}
 
-		function colorize(folder) {
+		function colorize(folder, background) {
 			if (folder.className.indexOf("colored")>=0) return;
 			folder.className += " colored";
 
-			let folderIcon = folder.nextSibling.querySelector(selectorPath)
-			let folderColor = getStyle(folderIcon).fill;
-			let backgroundColor = changeColorOpacity(folderColor, 0.4);
+
+			let backgroundColor = getFolderBackground(folder)
 			folder.style.backgroundColor = backgroundColor
-			folderIcon.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = backgroundColor
+			//TODO: cssString+= css, который изменяет цвет иконки папки
+			//folderIcon.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = backgroundColor
+		}
+
+		function getFolderBackground(folder) {
+			if (folder.className.indexOf("collapsed")>=0) {
+				let folderIcon = folder.nextSibling.querySelector(selectorPath)
+				let folderColor = getStyle(folderIcon).fill;
+				return  changeColorOpacity(folderColor, 0.4);
+			} else {
+				let folderColor = getStyle(folder.querySelector("[class*=\"folderIconWrapper-\"]")).backgroundColor;
+			}
 		}
 
 		function colorizeClosed(folder) {
@@ -62,13 +72,7 @@ module.exports = class FolderBackgroundColors {
 		}
 
 		for(let folder of Folders) {
-			if (folder.className.indexOf("collapsed")>=0) {
-				folder.onclick = () => colorize(folder);
-				folder.querySelector("[class*=\"closedFolderIconWrapper\"]")
-			}
-			else {
-				colorize(folder)
-			}
+			colorize(folder)
 		}
 	} // Required function. Called when the plugin is activated (including after reloads)
 	stop() {
