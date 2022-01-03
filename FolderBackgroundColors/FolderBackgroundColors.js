@@ -18,14 +18,21 @@ const config = {
 };
 
 
-
 module.exports = class FolderBackgroundColors {
 	getName() { return config.info.name; }
 	getDescription() { return config.info.description; }
 	getVersion() { return config.info.version; }
-	getAuthor() { return `${config.info.author}, original idea by Jiiks`; }
+	getAuthor() { return config.info.author; }
 
 	load() {
+	} // Optional function. Called when the plugin is loaded in to memory
+
+	start() {
+		let selectorPath = "div[class*=\"expandedFolderIconWrapper\"] > svg > path";
+		let Folders = document.querySelectorAll("span[class*=\"expandedFolderBackground\"]");
+//let ClosedFolders = все, где [class*="collapsed"]
+		let i = 0;
+
 		Element.prototype.getStyle = function (){
 			if(window.getComputedStyle) return getComputedStyle(this, null);
 			else return this.currentStyle;
@@ -35,13 +42,6 @@ module.exports = class FolderBackgroundColors {
 			let colors = color.replaceAll(/[^\d| ]/g, '').split(" ",3);
 			return "rgb(" + colors + ", " + newOpacity + ')'
 		}
-	} // Optional function. Called when the plugin is loaded in to memory
-
-	start() {
-		let selectorPath = "div[class*=\"expandedFolderIconWrapper\"] > svg > path";
-		let Folders = document.querySelectorAll("span[class*=\"expandedFolderBackground\"]");
-//let ClosedFolders = все, где [class*="collapsed"]
-		let i = 0;
 
 		function colorize(folder) {
 			if (folder.className.indexOf("colored")>=0) return;
@@ -63,7 +63,9 @@ module.exports = class FolderBackgroundColors {
 			}
 		}
 	} // Required function. Called when the plugin is activated (including after reloads)
-	stop() {} // Required function. Called when the plugin is deactivated
+	stop() {
+		// Will be released later
+	} // Required function. Called when the plugin is deactivated
 
 	observer(changes) {} // Optional function. Observer for the `document`. Better documentation than I can provide is found here: <https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver>
 }
