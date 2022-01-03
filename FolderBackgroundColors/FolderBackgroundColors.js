@@ -1,6 +1,6 @@
 /**!
  * @name FolderBackgroundColors
- * @description Makes the background colors of the folders the same colors as foldersm instead of standart one color for all folder backgrounds
+ * @description Makes the background colors of the folders the same colors as folders, instead of standart one color for all folder backgrounds
  * @version 1.0.0
  * @author Титан
  * @authorId https://discordapp.com/users/282775588257792005/
@@ -10,7 +10,7 @@
 const config = {
 	info: {
 		name: "FolderBackgroundColors",
-		description: "Makes the background colors of the folders the same colors as foldersm instead of standart one color for all folder backgrounds",
+		description: "Makes the background colors of the folders the same colors as folders, instead of standart one color for all folder backgrounds",
 		version: "1.0.0",
 		author: "Титан",
 		updateUrl: "https://github.com/TuTAH1/BetterDiscordPlugins/blob/main/FolderBackgroundColors/FolderBackgroundColors.js"
