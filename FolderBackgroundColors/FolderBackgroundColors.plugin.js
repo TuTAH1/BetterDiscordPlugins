@@ -4,6 +4,7 @@
  * @version 1.0.0
  * @author Титан
  * @authorId https://discordapp.com/users/282775588257792005/
+ * @authorLink http://steamcommunity.com/id/TuTAH_1/
  * @updateUrl https://raw.githubusercontent.com/TuTAH1/BetterDiscordPlugins/main/FolderBackgroundColors/FolderBackgroundColors.js
  */
 
