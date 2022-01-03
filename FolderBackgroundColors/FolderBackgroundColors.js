@@ -4,7 +4,7 @@
  * @version 1.0.0
  * @author Титан
  * @authorId https://discordapp.com/users/282775588257792005/
- * @updateUrl https://github.com/TuTAH1/BetterDiscordPlugins/blob/main/FolderBackgroundColors/FolderBackgroundColors.js
+ * @updateUrl https://raw.githubusercontent.com/TuTAH1/BetterDiscordPlugins/main/FolderBackgroundColors/FolderBackgroundColors.js
  */
 
 const config = {
