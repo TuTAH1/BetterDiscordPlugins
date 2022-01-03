@@ -24,18 +24,18 @@ module.exports = class FolderBackgroundColors {
 	getVersion() { return config.info.version; }
 	getAuthor() { return config.info.author; }
 
-	load() {
-	} // Optional function. Called when the plugin is loaded in to memory
-
 	start() {
+		console.log("starting FolderBackgroundColors...")
 		const selectorPath = "div[class*=\"expandedFolderIconWrapper\"] > svg > path";
-		const Folders = document.querySelectorAll("span[class*=\"expandedFolderBackground\"]");
+		let Folders = document.querySelectorAll("span[class*=\"expandedFolderBackground\"]");
 //let ClosedFolders = все, где [class*="collapsed"]
-		let cssString;
+		let cssString = "";
+		let i =0;
 
 		function getStyle(element) {
-			if(window.getComputedStyle) return getComputedStyle(element, null);
-			else return element.currentStyle;
+			console.log("Getting style of");
+			console.log(element);
+			return getComputedStyle(element, null);
 		}
 
 		function changeColorOpacity(color, newOpacity) {
@@ -44,23 +44,24 @@ module.exports = class FolderBackgroundColors {
 		}
 
 		function colorize(folder, background) {
-			if (folder.className.indexOf("colored")>=0) return;
-			folder.className += " colored";
-
-
+			if (folder.hasAttribute("fbc_id")) return;
+			i++;
+			folder.setAttribute("fbc_id",i);
 			let backgroundColor = getFolderBackground(folder)
-			folder.style.backgroundColor = backgroundColor
+			cssString+=`[FBC_id="${i}"] {background-color: ${backgroundColor}}\n`;
+			//folder.style.backgroundColor = backgroundColor //apply background to whole folder background
+			cssString+=`[FBC_id="${i}"] [class*=\"folder-\"] {background-color: ${backgroundColor}}\n`;
 			//TODO: cssString+= css, который изменяет цвет иконки папки
 			//folderIcon.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = backgroundColor
 		}
 
 		function getFolderBackground(folder) {
 			if (folder.className.indexOf("collapsed")>=0) {
+				return getStyle(folder.parentElement.querySelector("div[class*=\"folderIconWrapper-\"]")).backgroundColor;
+			} else {
 				let folderIcon = folder.nextSibling.querySelector(selectorPath)
 				let folderColor = getStyle(folderIcon).fill;
 				return  changeColorOpacity(folderColor, 0.4);
-			} else {
-				let folderColor = getStyle(folder.querySelector("[class*=\"folderIconWrapper-\"]")).backgroundColor;
 			}
 		}
 
@@ -71,11 +72,23 @@ module.exports = class FolderBackgroundColors {
 
 		}
 
+		//! MAIN FUNCTION
 		for(let folder of Folders) {
 			colorize(folder)
 		}
+		BdApi.injectCSS(config.info.name,cssString);
+		console.log("css string:")
+		console.log(cssString)
+
 	} // Required function. Called when the plugin is activated (including after reloads)
+
 	stop() {
+		console.log("stopping FolderBackgroundColors...")
+		const Folders = document.querySelectorAll("span[class*=\"expandedFolderBackground\"]");
+		for(let folder of Folders) {
+			folder.removeAttribute("fbc_id");
+		}
+		BdApi.clearCSS(config.info.name);
 		// Will be released later
 	} // Required function. Called when the plugin is deactivated
 
