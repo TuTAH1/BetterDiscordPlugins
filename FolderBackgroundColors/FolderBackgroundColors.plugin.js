@@ -48,10 +48,11 @@ module.exports = class FolderBackgroundColors {
 			i++;
 			folder.setAttribute("fbc_id",i);
 			let backgroundColor = getFolderBackground(folder)
-			cssString+=`[FBC_id="${i}"] {background-color: ${backgroundColor}!important}\n`;
-			cssString+=`[FBC_id="${i}"][class*="collapsed"] {background-color:transparent!important}\n`;
+			let cssRule = `{background-color: ${backgroundColor}!important}`
+			cssString+=`[FBC_id="${i}"] ${cssRule}\n`;
+			cssString+=`[FBC_id="${i}"][class*="collapsed"] ${cssRule}\n`;
 			//folder.style.backgroundColor = backgroundColor //apply background to whole folder background
-			cssString+=`[FBC_id="${i}"] [class*="folder-"] {background-color: ${backgroundColor}!important}\n`;
+			cssString+=`[FBC_id="${i}"] [class*="folder-"] ${cssRule}\n`;
 			//TODO: cssString+= css, который изменяет цвет иконки папки
 			//folderIcon.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = backgroundColor
 		}
