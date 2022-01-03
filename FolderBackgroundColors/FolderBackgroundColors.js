@@ -33,9 +33,9 @@ module.exports = class FolderBackgroundColors {
 //let ClosedFolders = все, где [class*="collapsed"]
 		let i = 0;
 
-		Element.prototype.getStyle = function (){
-			if(window.getComputedStyle) return getComputedStyle(this, null);
-			else return this.currentStyle;
+		function getStyle(element) {
+			if(window.getComputedStyle) return getComputedStyle(element, null);
+			else return element.currentStyle;
 		}
 
 		function changeColorOpacity(color, newOpacity) {
@@ -45,18 +45,26 @@ module.exports = class FolderBackgroundColors {
 
 		function colorize(folder) {
 			if (folder.className.indexOf("colored")>=0) return;
-
 			folder.className += " colored";
+
 			let folderIcon = folder.nextSibling.querySelector(selectorPath)
-			let folderColor = folderIcon.getStyle().fill;
-			let backgroundColor = changeColorOpacity(folderColor, 0.5);
+			let folderColor = getStyle(folderIcon).fill;
+			let backgroundColor = changeColorOpacity(folderColor, 0.4);
 			folder.style.backgroundColor = backgroundColor
 			folderIcon.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = backgroundColor
 		}
 
+		function colorizeClosed(folder) {
+			if (folder.className.indexOf("colored")>=0) return;
+			folder.className += " colored";
+
+
+		}
+
 		for(let folder of Folders) {
 			if (folder.className.indexOf("collapsed")>=0) {
-				folder.onclick = colorize;
+				folder.onclick = () => colorize(folder);
+				folder.querySelector("[class*=\"closedFolderIconWrapper\"]")
 			}
 			else {
 				colorize(folder)
