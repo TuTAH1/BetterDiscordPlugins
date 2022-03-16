@@ -25,74 +25,115 @@ module.exports = class FolderBackgroundColors {
 	getVersion() { return config.info.version; }
 	getAuthor() { return config.info.author; }
 
-	start() {
+	async start() {
 		console.log("starting FolderBackgroundColors...")
-		const selectorPath = "div[class*=\"expandedFolderIconWrapper\"] > svg > path";
-		let Folders = document.querySelectorAll("span[class*=\"expandedFolderBackground\"]");
-//let ClosedFolders = все, где [class*="collapsed"]
-		let cssString = "";
-		let i =0;
+		const FoldericonSelector = "div[class*=\"expandedFolderIconWrapper\"] > svg > path";
+		const FoldersSelector = "span[class*=\"expandedFolderBackground\"]"
+		let Folders = await waitForElm(FoldersSelector); // Несколько бесполезно, поскольку всё равно сбивается при старте. Надо сделать выполнение main при каждой "мутации"
+		let CssString;
+		let FolderNumber = 0;
+		let MainInterval;
 
 		function getStyle(element) {
+			if (element === null) {
+				console.log("FBC GetStyle error: elements is null")
+				return null;
+			}
 			console.log("Getting style of");
 			console.log(element);
 			return getComputedStyle(element, null);
 		}
 
 		function changeColorOpacity(color, newOpacity) {
-			let colors = color.replaceAll(/[^\d| ]/g, '').split(" ",3);
+			let colors = color.replaceAll(/[^\d| ]/g, '').split(" ", 3);
 			return "rgba(" + colors + ", " + newOpacity + ')'
 		}
 
 		function colorize(folder, background) {
-			if (folder.hasAttribute("fbc_id")) return;
-			i++;
-			folder.setAttribute("fbc_id",i);
+			if (folder.hasAttribute("fbc_id")) return "alreadyDone";
+			FolderNumber++;
+			folder.setAttribute("fbc_id", FolderNumber);
 			let backgroundColor = getFolderBackground(folder)
 			let cssRule = `{background-color: ${backgroundColor}!important}`
-			cssString+=`[FBC_id="${i}"] ${cssRule}\n`;
-			cssString+=`[FBC_id="${i}"][class*="collapsed"] {background-color:transparent!important}\n`;
-			//folder.style.backgroundColor = backgroundColor //apply background to whole folder background
-			cssString+=`[FBC_id="${i}"] [class*="folder-"] ${cssRule}\n`;
-			//TODO: cssString+= css, который изменяет цвет иконки папки
-			//folderIcon.parentElement.parentElement.parentElement.parentElement.style.backgroundColor = backgroundColor
+			CssString += `[FBC_id="${FolderNumber}"] ${cssRule}\n`;
+			CssString += `[FBC_id="${FolderNumber}"][class*="collapsed"] {background-color:transparent!important}\n`;
+			CssString += `[FBC_id="${FolderNumber}"] [class*="folder-"] ${cssRule}\n`;
 		}
 
 		function getFolderBackground(folder) {
-			if (folder.className.indexOf("collapsed")>=0) {
+			if (folder.className.indexOf("collapsed") >= 0) {
 				return getStyle(folder.parentElement.querySelector("div[class*=\"folderIconWrapper-\"]")).backgroundColor;
 			} else {
-				let folderIcon = folder.nextSibling.querySelector(selectorPath)
+				let folderIcon = folder.nextSibling.querySelector(FoldericonSelector)
 				let folderColor = getStyle(folderIcon).fill;
-				return  changeColorOpacity(folderColor, 0.4);
+				if (folderColor === null) return null;
+
+				return changeColorOpacity(folderColor, 0.4);
 			}
 		}
 
 		function colorizeClosed(folder) {
-			if (folder.className.indexOf("colored")>=0) return;
+			if (folder.className.indexOf("colored") >= 0) return;
 			folder.className += " colored";
+		}
 
 
+		// Ext funcs
+		function waitForElm(selector) {
+			return new Promise(resolve => {
+				if (document.querySelectorAll(selector)) {
+					return resolve(document.querySelectorAll(selector));
+				}
+
+				const observer = new MutationObserver(mutations => {
+					if (document.querySelectorAll(selector)) {
+						resolve(document.querySelectorAll(selector));
+						observer.disconnect();
+					}
+				});
+
+				observer.observe(document.body, {
+					childList: true,
+					subtree: true
+				});
+			});
 		}
 
 		//! MAIN FUNCTION
-		for(let folder of Folders) {
-			colorize(folder)
+		function main() {
+			Folders = document.querySelectorAll(FoldersSelector);
+			if (Folders === null) {
+				//console.log("Folders: Почему ты меня не подождал? Observer: Да");
+				return
+			}
+			let OldCss = CssString;
+
+			for (let folder of Folders) {
+				colorize(folder)
+			}
+
+			if (OldCss != CssString) {
+				BdApi.injectCSS(config.info.name, CssString);
+				console.log("css string:")
+				console.log(CssString)
+			}
 		}
-		BdApi.injectCSS(config.info.name,cssString);
-		console.log("css string:")
-		console.log(cssString)
+
+		MainInterval = setInterval(main,5000);
 
 	} // Required function. Called when the plugin is activated (including after reloads)
 
 	stop() {
 		console.log("stopping FolderBackgroundColors...")
 		const Folders = document.querySelectorAll("span[class*=\"expandedFolderBackground\"]");
+		if (Folders == null) {
+			console.log("FBC error: no folders found"); return
+		}
 		for(let folder of Folders) {
 			folder.removeAttribute("fbc_id");
 		}
 		BdApi.clearCSS(config.info.name);
-		// Will be released later
+		clearInterval(MainInterval);
 	} // Required function. Called when the plugin is deactivated
 
 	observer(changes) {} // Optional function. Observer for the `document`. Better documentation than I can provide is found here: <https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver>
