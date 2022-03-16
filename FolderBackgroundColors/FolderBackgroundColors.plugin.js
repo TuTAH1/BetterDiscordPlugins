@@ -119,7 +119,7 @@ module.exports = class FolderBackgroundColors {
 			}
 		}
 
-		MainInterval = setInterval(main,5000);
+		MainInterval = setInterval(main,5000); //It's better to make it with observer, but I have not time yet to learn it.
 
 	} // Required function. Called when the plugin is activated (including after reloads)
 
