@@ -1,7 +1,7 @@
 /**!
  * @name FolderBackgroundColors
  * @description Makes the background colors of the folders the same colors as folders, instead of standart one color for all folder backgrounds
- * @version 1.1.0
+ * @version 1.1.1
  * @author Титан
  * @authorId https://discordapp.com/users/282775588257792005/
  * @authorLink http://steamcommunity.com/id/TuTAH_1/
@@ -26,7 +26,7 @@ module.exports = class FolderBackgroundColors {
 	getAuthor() { return config.info.author; }
 
 	async start() {
-		let logging = true;
+		let logging = false;
 
 		function log(message) {
 			if (logging) console.log(message);
@@ -146,7 +146,7 @@ module.exports = class FolderBackgroundColors {
 	} // Required function. Called when the plugin is activated (including after reloads)
 
 	stop() {
-		let logging = true;
+		let logging = false;
 
 		function log(message) {
 			if (logging) console.log(message);
