@@ -1,7 +1,7 @@
 /**!
  * @name FolderBackgroundColors
  * @description Makes the background colors of the folders the same colors as folders, instead of standart one color for all folder backgrounds
- * @version 1.1.1
+ * @version 1.1.2.2
  * @author Титан
  * @authorId https://discordapp.com/users/282775588257792005/
  * @authorLink http://steamcommunity.com/id/TuTAH_1/
@@ -12,12 +12,13 @@ const config = {
 	info: {
 		name: "FolderBackgroundColors",
 		description: "Makes the background colors of the folders the same colors as folders, instead of standart one color for all folder backgrounds",
-		version: "1.1.1",
+		version: "1.1.2.2",
 		author: "Титан",
+		authorId: "https://discordapp.com/users/282775588257792005/",
+		authorLink: "http://steamcommunity.com/id/TuTAH_1/",
 		updateUrl: "https://raw.githubusercontent.com/TuTAH1/BetterDiscordPlugins/main/FolderBackgroundColors/FolderBackgroundColors.js"
 	}
 };
-
 
 module.exports = class FolderBackgroundColors {
 	getName() { return config.info.name; }
@@ -42,7 +43,7 @@ module.exports = class FolderBackgroundColors {
 		log("starting FolderBackgroundColors...")
 		const FoldericonSelector = "div[class*=\"expandedFolderIconWrapper\"] > svg > path";
 		const FoldersSelector = "span[class*=\"expandedFolderBackground\"]";
-		let CssString = "";
+		let CssString = ""; //test
 		let FolderNumber = 0;
 		let observerFoundFolders = false; // костыль for this ugly disguasting MutationObserver
 
@@ -51,11 +52,12 @@ module.exports = class FolderBackgroundColors {
 				//: If element is added/removed or folder attributes changed
 				if ((mutation.type === 'childList' && (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0)) || mutation.type === 'attributes') {
 					let Folders = document.querySelectorAll(FoldersSelector);
-					if (Folders !== null) {
+					let leftPanel = Folders[0].parentElement.parentElement
+					if (Folders !== null && Folders.length > 0) {
 						// if (!observerFoundFolders) { //set observer to observe only folders
 						// 	observer.disconnect();
 						// 	observer = new MutationObserver(handleMutation);
-						// 	observer.observe(Folders[0].parentElement.parentElement, { childList: true, subtree: true })
+						// 	observer.observe(leftPanel, { childList: true, subtree: true })
 						// }
 						main(Folders); // plugin work
 						// if (observerFoundFolders) { //set observer to observe all body
@@ -69,8 +71,8 @@ module.exports = class FolderBackgroundColors {
 			}
 		}
 
-		const observer = new MutationObserver(handleMutation);
-		observer.observe(document.body, { childList: true, subtree: true });
+		this.observer = new MutationObserver(handleMutation);
+		this.observer.observe(document.body, { childList: true, subtree: true });
 
 
 		//! MAIN FUNCTION
@@ -100,14 +102,17 @@ module.exports = class FolderBackgroundColors {
 				//: Color stored in CssString
 				let cssBackgroundColor = CssString.Tslice(`[FBC_id="${fbc_id}"] {`, "}")
 
+
 			} else {
+				let backgroundColor = getFolderBackground(folder)
+				if (backgroundColor === null) return;
+
 				FolderNumber++;
 				folder.setAttribute("fbc_id", FolderNumber); //: Add css attribute
-				let backgroundColor = getFolderBackground(folder)
 				let cssRule = `{background-color: ${backgroundColor}!important}`  //: Create css rule (set color) for this attribute
 				CssString += `[FBC_id="${FolderNumber}"] ${cssRule}\n`; //: Folder background color
 				CssString += `[FBC_id="${FolderNumber}"][class*="collapsed"] {background-color:transparent!important}\n`; //: I don't remember why I added this
-				CssString += `[FBC_id="${FolderNumber}"] [class*="folder_"] ${cssRule}\n`;
+				CssString += `[FBC_id="${FolderNumber}"][class*="expandedFolderBackground"] ${cssRule}\n`;
 			}
 		}
 
@@ -116,7 +121,10 @@ module.exports = class FolderBackgroundColors {
 				return getStyle(folder.parentElement.querySelector("div[class*=\"folderIconWrapper_\"]")).backgroundColor;
 			} else {
 				let folderIcon = folder.nextSibling.querySelector(FoldericonSelector) //svg
-				// TODO: if null, close folder and get background
+				if (folderIcon === null) { //: It's custom BetterFolder icon
+					return null; //: remove after adding support for custom icons
+				}
+
 				let folderColor = getStyle(folderIcon).color;
 				if (folderColor === null) return null;
 
@@ -329,13 +337,14 @@ module.exports = class FolderBackgroundColors {
 		}
 
 		log("stopping FolderBackgroundColors...")
-		const Folders = document.querySelectorAll("span[class*=\"expandedFolderBackground\"]");
+		const Folders = document.querySelectorAll(`span[class*="expandedFolderBackground"]`);
 		if (Folders == null) {
 			log("FBC error: no folders found"); return
 		}
 		for(let folder of Folders) {
 			folder.removeAttribute("fbc_id");
 		}
+		this.observer.disconnect();
 		BdApi.clearCSS(config.info.name);
 	} // Required function. Called when the plugin is deactivated
 
