@@ -1,7 +1,7 @@
 /**!
  * @name FolderBackgroundColors
  * @description Makes the background colors of the folders the same colors as folders, instead of standart one color for all folder backgrounds
- * @version 1.1.2.2
+ * @version 1.1.3
  * @author Титан
  * @authorId https://discordapp.com/users/282775588257792005/
  * @authorLink http://steamcommunity.com/id/TuTAH_1/
@@ -12,7 +12,7 @@ const config = {
 	info: {
 		name: "FolderBackgroundColors",
 		description: "Makes the background colors of the folders the same colors as folders, instead of standart one color for all folder backgrounds",
-		version: "1.1.2.2",
+		version: "1.1.3",
 		author: "Титан",
 		authorId: "https://discordapp.com/users/282775588257792005/",
 		authorLink: "http://steamcommunity.com/id/TuTAH_1/",
@@ -107,14 +107,12 @@ module.exports = class FolderBackgroundColors {
 
 			} else {
 				let backgroundColor = getFolderBackground(folder)
-				if (backgroundColor === null) return;
+				if (backgroundColor === null || backgroundColor === 'rgba(0, 0, 0, 0)') return;
 
 				FolderNumber++;
 				folder.setAttribute("fbc_id", FolderNumber); //: Add css attribute
 				let cssRule = `{background-color: ${backgroundColor}!important}`  //: Create css rule (set color) for this attribute
-				CssString += `[FBC_id="${FolderNumber}"] ${cssRule}\n`; //: Folder background color
-				CssString += `[FBC_id="${FolderNumber}"][class*="collapsed"] {background-color:transparent!important}\n`; //: I don't remember why I added this
-				CssString += `[FBC_id="${FolderNumber}"][class*="expandedFolderBackground"] ${cssRule}\n`;
+				CssString += `[FBC_id="${FolderNumber}"][class*="expandedFolderBackground"]:not([class*="collapsed"] ) ${cssRule}\n`;
 			}
 		}
 
