@@ -50,10 +50,12 @@ module.exports = class FolderBackgroundColors {
 		function handleMutation(mutationsList, observer) {
 			for (let mutation of mutationsList) {
 				//: If element is added/removed or folder attributes changed
+
 				if ((mutation.type === 'childList' && (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0)) || mutation.type === 'attributes') {
 					let Folders = document.querySelectorAll(FoldersSelector);
-					let leftPanel = Folders[0].parentElement.parentElement
-					if (Folders !== null && Folders.length > 0) {
+					if (Folders == null && Folders.length <= 0) continue;
+					let leftPanel = Folders[0].parentElement.parentElement;
+					if (leftPanel.contains(mutation.target)) {
 						// if (!observerFoundFolders) { //set observer to observe only folders
 						// 	observer.disconnect();
 						// 	observer = new MutationObserver(handleMutation);
