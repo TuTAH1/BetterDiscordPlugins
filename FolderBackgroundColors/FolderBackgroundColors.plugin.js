@@ -96,11 +96,13 @@ module.exports = class FolderBackgroundColors {
 
 			let fbc_id = folder.getAttribute("fbc_id");
 			if (fbc_id != null) { //: If applied, check if color changed
-				//: Actual folder color
-				let backgroundColor = getFolderBackground(folder)
-				if (backgroundColor === null) return;
-				//: Color stored in CssString
-				let cssBackgroundColor = CssString.Tslice(`[FBC_id="${fbc_id}"] {`, "}")
+				// //: Actual folder color
+				// let backgroundColor = getFolderBackground(folder)
+				// if (backgroundColor === null) return;
+				// //: Color stored in CssString
+				// let cssBackgroundColor = CssString.slice()
+				// 	.Tslice(`[FBC_id="${fbc_id}"] {`, "!important}", false, false, false, false, false)
+				// log("cssBackgroundColor: " + cssBackgroundColor)
 
 
 			} else {
