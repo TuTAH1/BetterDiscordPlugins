@@ -1,7 +1,7 @@
 /**!
  * @name FolderBackgroundColors
  * @description Makes the background colors of the folders the same colors as folders, instead of standart one color for all folder backgrounds
- * @version 1.1.3.2
+ * @version 1.1.4
  * @author Титан
  * @authorId https://discordapp.com/users/282775588257792005/
  * @authorLink http://steamcommunity.com/id/TuTAH_1/
@@ -12,7 +12,7 @@ const config = {
 	info: {
 		name: "FolderBackgroundColors",
 		description: "Makes the background colors of the folders the same colors as folders, instead of standart one color for all folder backgrounds",
-		version: "1.1.3.2",
+		version: "1.1.4",
 		author: "Титан",
 		authorId: "https://discordapp.com/users/282775588257792005/",
 		authorLink: "http://steamcommunity.com/id/TuTAH_1/",
@@ -43,7 +43,7 @@ module.exports = class FolderBackgroundColors {
 		log("starting FolderBackgroundColors...")
 		const FoldericonSelector = "div[class*=\"expandedFolderIconWrapper\"] > svg > path";
 		const FoldersSelector = "span[class*=\"expandedFolderBackground\"]";
-		let CssString = ""; //test
+		let cssString = "";
 		let FolderNumber = 0;
 		let observerFoundFolders = false; // костыль for this ugly disguasting MutationObserver
 
@@ -79,7 +79,7 @@ module.exports = class FolderBackgroundColors {
 
 		//! MAIN FUNCTION
 		function main(Folders) {
-			let OldCss = CssString;
+			let oldCss = cssString;
 
 			//: Add css classes for all folders FBC_id="i"
 			for (let folder of Folders) {
@@ -87,34 +87,53 @@ module.exports = class FolderBackgroundColors {
 			}
 
 			//: Inject css for those classes (looks like [FBC_id="*"] [class*="folder-"] {background-color: *})
-			if (OldCss != CssString) {
-				BdApi.injectCSS(config.info.name, CssString);
+			if (oldCss != cssString) {
+				BdApi.injectCSS(config.info.name, cssString);
 				log("css string:")
-				log(CssString)
+				log(cssString)
 			}
 		}
 
 		function colorize(folder, background) {
 
-			let fbc_id = folder.getAttribute("fbc_id");
+			let fbc_id = folder.getAttribute("FBC_id");
 			if (fbc_id != null) { //: If applied, check if color changed
-				// //: Actual folder color
-				// let backgroundColor = getFolderBackground(folder)
-				// if (backgroundColor === null) return;
-				// //: Color stored in CssString
-				// let cssBackgroundColor = CssString.slice()
-				// 	.Tslice(`[FBC_id="${fbc_id}"] {`, "!important}", false, false, false, false, false)
-				// log("cssBackgroundColor: " + cssBackgroundColor)
-
-
-			} else {
+				//: Actual folder color
 				let backgroundColor = getFolderBackground(folder)
-				if (backgroundColor === null || backgroundColor === 'rgba(0, 0, 0, 0)') return;
+				if (backgroundColor === null || backgroundColor === "" || backgroundColor === "rgba(0, 0, 0, 0)") return;
+
+				//: Color stored in CssString
+				let cssSearch = cssString.stringSlice(
+					`[FBC_id="${fbc_id}"][class*="expandedFolderBackground"]:not([class*="collapsed"] ) {background-color: `,
+					"!important}",
+					false, false, false, false)
+				let cssBackgroundColor =  cssSearch?.string;
+				log("cssBackgroundColor: " + cssBackgroundColor)
+
+
+				//: If color stored in CssString is not null
+				if (cssBackgroundColor !== null)
+				{
+					if(cssBackgroundColor === backgroundColor) return; //: If color didn't change, return
+
+					//: If color changed, replace it in CssString
+					cssString = cssString.replaceBetween(cssSearch.startIndex, cssSearch.endIndex, backgroundColor)
+				}
+				else {
+					console.log("cssBackgroundColor is null at " + fbc_id)
+					//: If color stored in CssString is null, add it to CssString
+					cssString += `[FBC_id="${fbc_id}"][class*="expandedFolderBackground"]:not([class*="collapsed"] ) {background-color: ${backgroundColor}!important}\n`;
+				}
+			}
+			//: If not applied, apply it
+			 else {
+				let backgroundColor = getFolderBackground(folder)
+				if (backgroundColor === null || backgroundColor === "rgba(0, 0, 0, 0)") return;
 
 				FolderNumber++;
-				folder.setAttribute("fbc_id", FolderNumber); //: Add css attribute
+				folder.setAttribute("FBC_id", FolderNumber); //: Add css attribute
 				let cssRule = `{background-color: ${backgroundColor}!important}`  //: Create css rule (set color) for this attribute
-				CssString += `[FBC_id="${FolderNumber}"][class*="expandedFolderBackground"]:not([class*="collapsed"] ) ${cssRule}\n`;
+				cssString += `[FBC_id="${FolderNumber}"][class*="expandedFolderBackground"]:not([class*="collapsed"] ) ${cssRule}\n`;
 			}
 		}
 
@@ -148,6 +167,38 @@ module.exports = class FolderBackgroundColors {
 			let colors = color.replaceAll(/[^\d| ]/g, '').split(" ", 3);
 			return "rgba(" + colors + ", " + newOpacity + ')'
 		}
+
+		class stringSliceReturn {
+			constructor(string, startIndex, endIndex) {
+				this.string = string;
+				this.startIndex = startIndex;
+				this.endIndex = endIndex;
+			}
+		}
+
+		if(!String.prototype.stringSlice)
+		String.prototype.stringSlice = function(start, end, includeStart = false, includeEnd = false, startLastOccurrence = false, endLastOccurrence = true) {
+			let string = this;
+			let startIndex = startLastOccurrence ? string.lastIndexOf(start) : string.indexOf(start);
+			if (startIndex < 0) return null;
+			if (!includeStart) startIndex += start.length;
+
+			string = string.slice(startIndex);
+
+			let endIndex = endLastOccurrence ? string.lastIndexOf(end) : string.indexOf(end);
+			if (endIndex < 0) return null;
+			if (includeEnd) endIndex += end.length;
+
+			let result = string.slice(0, endIndex);
+			return new stringSliceReturn(result, startIndex, startIndex+endIndex);
+		}
+
+		if (!String.prototype.replaceBetween)
+		String.prototype.replaceBetween = function(start, end, what) {
+			return this.substring(0, start) + what + this.substring(end);
+		};
+
+
 
 	} // Required function. Called when the plugin is activated (including after reloads)
 
