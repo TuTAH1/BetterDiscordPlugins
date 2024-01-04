@@ -2,7 +2,7 @@
 
 ![image](https://github.com/TuTAH1/BetterDiscordPlugins/assets/15982179/00833b1d-c834-4721-80b0-dcd91920d246)
 
-Oh no, the folder is too long, I can't understand what the folder is at a glance
+Oh no, the upper folder is too long, I can't understand what folder it is at a glance
 
 ## After:
 
